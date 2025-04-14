@@ -67,6 +67,14 @@
       utter.lang = "ko-KR";
       speechSynthesis.speak(utter);
     }
+    // 停止前一個朗讀，避免卡住
+    speechSynthesis.cancel();
+    
+    // 部分手機需要 user gesture 才能啟動
+    setTimeout(() => speechSynthesis.speak(utter), 100);
+  } else 
+    alert("你的瀏覽器不支援語音朗讀");
+  }
   </script>
 </body>
 </html>
