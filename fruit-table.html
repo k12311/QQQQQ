@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>蔬菜單字五格表</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #fef6f9;
+      padding: 20px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ffc1d6;
+    }
+    th {
+      background-color: #ffe0ea;
+      color: #d63384;
+    }
+    td span {
+      cursor: pointer;
+      color: #0077cc;
+    }
+    td span:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🥦 蔬菜單字五格表（含朗讀）</h1>
+  <table>
+    <tr>
+      <th>韓文單字</th>
+      <th>羅馬拼音</th>
+      <th>中文翻譯</th>
+      <th>例句（韓文）</th>
+      <th>例句翻譯</th>
+    </tr>
+    <tr><td><span onclick="speak('오이')">오이</span></td><td>oi</td><td>小黃瓜</td><td><span onclick="speak('오이를 먹어요')">오이를 먹어요</span></td><td>我吃小黃瓜。</td></tr>
+    <tr><td><span onclick="speak('토마토')">토마토</span></td><td>tomato</td><td>番茄</td><td><span onclick="speak('토마토를 먹어요')">토마토를 먹어요</span></td><td>我吃番茄。</td></tr>
+    <tr><td><span onclick="speak('당근')">당근</span></td><td>danggeun</td><td>胡蘿蔔</td><td><span onclick="speak('당근을 먹어요')">당근을 먹어요</span></td><td>我吃胡蘿蔔。</td></tr>
+    <tr><td><span onclick="speak('감자')">감자</span></td><td>gamja</td><td>馬鈴薯</td><td><span onclick="speak('감자를 먹어요')">감자를 먹어요</span></td><td>我吃馬鈴薯。</td></tr>
+    <tr><td><span onclick="speak('고구마')">고구마</span></td><td>goguma</td><td>地瓜</td><td><span onclick="speak('고구마를 먹어요')">고구마를 먹어요</span></td><td>我吃地瓜。</td></tr>
+    <tr><td><span onclick="speak('호박')">호박</span></td><td>hobak</td><td>南瓜</td><td><span onclick="speak('호박을 먹어요')">호박을 먹어요</span></td><td>我吃南瓜。</td></tr>
+    <tr><td><span onclick="speak('가지')">가지</span></td><td>gaji</td><td>茄子</td><td><span onclick="speak('가지를 먹어요')">가지를 먹어요</span></td><td>我吃茄子。</td></tr>
+    <tr><td><span onclick="speak('버섯')">버섯</span></td><td>beoseot</td><td>蘑菇</td><td><span onclick="speak('버섯을 먹어요')">버섯을 먹어요</span></td><td>我吃蘑菇。</td></tr>
+    <tr><td><span onclick="speak('양배추')">양배추</span></td><td>yangbaechu</td><td>高麗菜</td><td><span onclick="speak('양배추를 먹어요')">양배추를 먹어요</span></td><td>我吃高麗菜。</td></tr>
+    <tr><td><span onclick="speak('배추')">배추</span></td><td>baechu</td><td>白菜</td><td><span onclick="speak('배추를 먹어요')">배추를 먹어요</span></td><td>我吃白菜。</td></tr>
+    <tr><td><span onclick="speak('상추')">상추</span></td><td>sangchu</td><td>生菜</td><td><span onclick="speak('상추를 먹어요')">상추를 먹어요</span></td><td>我吃生菜。</td></tr>
+    <tr><td><span onclick="speak('파')">파</span></td><td>pa</td><td>蔥</td><td><span onclick="speak('파를 먹어요')">파를 먹어요</span></td><td>我吃蔥。</td></tr>
+    <tr><td><span onclick="speak('마늘')">마늘</span></td><td>maneul</td><td>大蒜</td><td><span onclick="speak('마늘을 먹어요')">마늘을 먹어요</span></td><td>我吃大蒜。</td></tr>
+    <tr><td><span onclick="speak('양파')">양파</span></td><td>yangpa</td><td>洋蔥</td><td><span onclick="speak('양파를 먹어요')">양파를 먹어요</span></td><td>我吃洋蔥。</td></tr>
+    <tr><td><span onclick="speak('고추')">고추</span></td><td>gochu</td><td>辣椒</td><td><span onclick="speak('고추를 먹어요')">고추를 먹어요</span></td><td>我吃辣椒。</td></tr>
+  </table>
+
+  <script>
+    function speak(text) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ko-KR";
+      speechSynthesis.speak(utter);
+    }
+  </script>
+</body>
+</html>
