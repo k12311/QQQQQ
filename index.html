@@ -61,20 +61,24 @@
     <tr><td><span onclick="speak('고추')">고추</span></td><td>gochu</td><td>辣椒</td><td><span onclick="speak('고추를 먹어요')">고추를 먹어요</span></td><td>我吃辣椒。</td></tr>
   </table>
 
-  <script>
+<script>
   function speak(text) {
-    // 在每次播放前先停止前一個朗讀
+    if (!("speechSynthesis" in window)) {
+      alert("你的瀏覽器不支援語音朗讀");
+      return;
+    }
+
+    // 停止前一次朗讀（避免疊加）
     window.speechSynthesis.cancel();
+
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "ko-KR";
+
+    // 在 Android/Safari 等環境，必須透過點擊來觸發朗讀才會成功
     window.speechSynthesis.speak(utter);
   }
-
-  // 檢查瀏覽器是否支援語音朗讀（可選）
-  if (!("speechSynthesis" in window)) {
-    alert("你的瀏覽器不支援語音朗讀");
-  }
 </script>
+
 
 </body>
 </html>
