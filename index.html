@@ -62,19 +62,19 @@
   </table>
 
   <script>
-    function speak(text) {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = "ko-KR";
-      speechSynthesis.speak(utter);
-    }
-    // 停止前一個朗讀，避免卡住
-    speechSynthesis.cancel();
-    
-    // 部分手機需要 user gesture 才能啟動
-    setTimeout(() => speechSynthesis.speak(utter), 100);
-  } else 
+  function speak(text) {
+    // 在每次播放前先停止前一個朗讀
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    window.speechSynthesis.speak(utter);
+  }
+
+  // 檢查瀏覽器是否支援語音朗讀（可選）
+  if (!("speechSynthesis" in window)) {
     alert("你的瀏覽器不支援語音朗讀");
   }
-  </script>
+</script>
+
 </body>
 </html>
