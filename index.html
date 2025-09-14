@@ -1,144 +1,96 @@
-<div class="center" style="margin:1rem 0;">
-  <button id="unlockTTS">🔓 啟動語音（iPhone 請先點我一次）</button>
-</div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>韓文朗讀測試版</title>
+  <style>
+    body { background: #fff0f5; font-family: Arial; padding: 2rem; text-align:center; }
+    h1 { color: #d26fa0; }
+    button {
+      background: #ffc0cb; border: none; padding: 8px 16px;
+      border-radius: 10px; margin: 8px; cursor: pointer;
+    }
+    button:hover { background: #ffa7bd; }
+  </style>
+</head>
+<body>
+  <h1>🔊 韓文朗讀測試版</h1>
 
-<script>
-  let koVoice = null;
-  let speechReady = false;
-  let keepAliveTimer = null;
+  <div style="margin:1rem 0;">
+    <button id="unlockTTS">🔓 啟動語音（iPhone 請先點我一次）</button>
+  </div>
 
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices?.() || [];
-    koVoice = voices.find(v => (v.lang||'').toLowerCase().startsWith('ko'))
-          || voices.find(v => (v.name||'').toLowerCase().includes('korean'))
-          || null;
-  }
-  if ('speechSynthesis' in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  }
+  <div>
+    <button onclick="speak('저')">朗讀：저</button>
+    <button onclick="speak('당신은 선생님입니까?')">朗讀：당신은 선생님입니까?</button>
+    <button onclick="speak('저는 한국 사람입니다.')">朗讀：저는 한국 사람입니다.</button>
+  </div>
 
-  function ensureResume() {
-    try { speechSynthesis.resume(); } catch(e) {}
-  }
+  <script>
+    let koVoice = null;
+    let speechReady = false;
 
-  // iOS：播放期間定時 "喚醒"，避免被系統暫停
-  function startKeepAlive() {
-    stopKeepAlive();
-    keepAliveTimer = setInterval(() => {
-      if (speechSynthesis.paused || !speechSynthesis.speaking) return;
+    function loadVoices() {
+      const voices = speechSynthesis.getVoices?.() || [];
+      koVoice = voices.find(v => (v.lang||'').toLowerCase().startsWith('ko'))
+            || voices.find(v => (v.name||'').toLowerCase().includes('korean'))
+            || null;
+    }
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function ensureResume() {
+      try { speechSynthesis.resume(); } catch(e) {}
+    }
+
+    function unlockSpeech() {
+      if (!('speechSynthesis' in window)) {
+        alert('此瀏覽器不支援語音朗讀'); return;
+      }
+      speechSynthesis.cancel();
       ensureResume();
-    }, 900); // 0.9 秒
-  }
-  function stopKeepAlive() {
-    if (keepAliveTimer) {
-      clearInterval(keepAliveTimer);
-      keepAliveTimer = null;
+      const u = new SpeechSynthesisUtterance('시작');
+      u.lang = 'ko-KR';
+      if (koVoice) u.voice = koVoice;
+      u.volume = 0; // 靜音觸發
+      u.onend = () => {
+        speechReady = true;
+        const btn = document.getElementById('unlockTTS');
+        if (btn) {
+          btn.textContent = '✅ 語音已啟動（可以播放）';
+          btn.disabled = true;
+          btn.style.opacity = 0.7;
+        }
+      };
+      speechSynthesis.speak(u);
     }
-  }
 
-  // 解鎖（需使用者手勢）
-  function unlockSpeech() {
-    if (!('speechSynthesis' in window)) {
-      alert('此瀏覽器不支援語音朗讀，請改用 Safari/Chrome。');
-      return;
-    }
-    speechSynthesis.cancel();
-    ensureResume();
-
-    const u = new SpeechSynthesisUtterance('시작'); //「開始」
-    u.lang = 'ko-KR';
-    if (koVoice) u.voice = koVoice;
-    u.volume = 0; // 靜音觸發
-    u.onend = () => {
-      speechReady = true;
-      const btn = document.getElementById('unlockTTS');
-      if (btn) {
-        btn.textContent = '✅ 語音已啟動（可以播放）';
-        btn.disabled = true;
-        btn.style.opacity = 0.7;
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('此瀏覽器不支援語音朗讀'); return;
       }
-    };
-    speechSynthesis.speak(u);
-  }
-
-  // 將長句切塊（iOS 對很長文字較不穩）
-  function chunkKorean(text) {
-    const t = String(text).trim();
-    if (!t) return [];
-    // 依句號/問號/逗號/頓號/空白做溫和切分
-    const parts = t.split(/([.?!…]|[，、。？！]|\s{2,})/).filter(Boolean);
-    // 合併切分符號，避免丟標點
-    const merged = [];
-    for (let i = 0; i < parts.length; i++) {
-      const cur = parts[i];
-      if (/[.?!…，、。？！]/.test(cur) && merged.length) {
-        merged[merged.length - 1] += cur;
-      } else if (cur.trim()) {
-        merged.push(cur.trim());
+      if (!speechReady && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        alert('請先點「啟動語音」再播放'); return;
       }
-    }
-    // 再把過短的片段合併，避免太碎
-    const result = [];
-    let buf = '';
-    for (const seg of merged) {
-      if ((buf + ' ' + seg).length <= 40) {
-        buf = buf ? (buf + ' ' + seg) : seg;
-      } else {
-        if (buf) result.push(buf);
-        buf = seg;
-      }
-    }
-    if (buf) result.push(buf);
-    return result;
-  }
-
-  // 核心播音：含 cancel/resume/失敗重試/keepAlive
-  function speak(text) {
-    if (!('speechSynthesis' in window)) {
-      alert('此瀏覽器不支援語音朗讀。'); return;
-    }
-    if (!speechReady && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      alert('請先點上方「啟動語音」一次，才能在 iPhone 播放。');
-      return;
-    }
-
-    speechSynthesis.cancel();
-    ensureResume();
-
-    const queue = chunkKorean(text);
-    let idx = 0;
-
-    function playNext() {
-      if (idx >= queue.length) {
-        stopKeepAlive();
-        return;
-      }
-      const u = new SpeechSynthesisUtterance(queue[idx]);
+      speechSynthesis.cancel();
+      ensureResume();
+      const u = new SpeechSynthesisUtterance(text);
       u.lang = 'ko-KR';
       if (koVoice) u.voice = koVoice;
       u.rate = 0.95;
       u.pitch = 1.0;
-      u.onstart = () => { startKeepAlive(); };
-      u.onend = () => { idx++; playNext(); };
-      u.onerror = () => {
-        // Safari 偶發錯誤：retry 一次
-        setTimeout(() => {
-          ensureResume();
-          speechSynthesis.cancel();
-          setTimeout(() => speechSynthesis.speak(u), 120);
-        }, 80);
-      };
       speechSynthesis.speak(u);
     }
-    playNext();
-  }
 
-  document.getElementById('unlockTTS')?.addEventListener('click', unlockSpeech);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') ensureResume();
-  });
-  // 將 speak 暴露到全域（維持你原本按鈕 onclick="speak('...')"）
-  window.speak = speak;
-</script>
+    document.getElementById('unlockTTS')?.addEventListener('click', unlockSpeech);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') ensureResume();
+    });
+    window.speak = speak;
+  </script>
+</body>
+</html>
 
